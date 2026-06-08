@@ -63,7 +63,7 @@ function NeonFlow:CreateWindow(options)
     local MainWindow = Create("Frame", {
         Name = "MainWindow",
         Size = size,
-        Position = UDim2.fromOffset(0,3,0,3),
+        Position = UDim2.fromOffset(3,3),
         BackgroundColor3 = Theme.MainBG,
         Active = true,
         Parent = MainGlowCard
