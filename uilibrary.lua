@@ -55,20 +55,28 @@ function NeonFlow:CreateWindow(options)
     })
     Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = MainGlowCard})
     
-    local GlowStroke = Create("UIStroke", {Color = Color3.new(1,1,1), Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = MainGlowCard})
     local GlowGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = GlowStroke})
     AnimateGlow(GlowGradient)
 
-    -- [ M A I N   W I N D O W ]
-    local MainWindow = Create("Frame", {
-        Name = "MainWindow",
-        Size = size,
-        Position = UDim2.fromOffset(3,3),
-        BackgroundColor3 = Theme.MainBG,
-        Active = true,
-        Parent = MainGlowCard
-    })
-    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = MainWindow})
+   -- [ M A I N   W I N D O W ]
+local MainWindow = Create("Frame", {
+    Name = "MainWindow",
+    Size = size,
+    Position = UDim2.fromOffset(3,3),
+    BackgroundColor3 = Theme.MainBG,
+    Active = true,
+    Parent = MainGlowCard
+})
+Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = MainWindow})
+
+local GlowStroke = Create("UIStroke", {
+    Color = Color3.new(1,1,1), 
+    Thickness = 2, 
+    ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+    Parent = MainWindow 
+})
+local GlowGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = GlowStroke})
+AnimateGlow(GlowGradient)
 
     -- [ T O P   B A R ]
     local TopBar = Create("Frame", { Name = "TopBar", Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = Theme.TopBarBG, Parent = MainWindow })
