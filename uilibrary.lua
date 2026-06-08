@@ -1,6 +1,7 @@
 -- ============================================================
 -- NEONFLOW LIBRARY - HIGH-END MODULAR UI ENGINE
 -- Inspired by glowing CSS cards & browser-style tabs
+-- Standalone, high-end, Ambiguous-free library
 -- ============================================================
 local NeonFlow = {}
 
@@ -10,12 +11,13 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 -- [ T H E M E   C O N F I G ]
+-- All IDs here are in English
 local Theme = {
     MainBG = Color3.fromRGB(10, 10, 10),
     CardBG = Color3.fromRGB(20, 20, 20),
     ItemBG = Color3.fromRGB(30, 30, 30),
-    TabActiveBG = Color3.fromRGB(81, 81, 81), -- Browser example color
-    TabHeaderBG = Color3.fromRGB(53, 53, 53), -- Browser example color
+    TabActiveBG = Color3.fromRGB(81, 81, 81), -- Dark Gray Browser
+    TabHeaderBG = Color3.fromRGB(53, 53, 53), -- Dark Gray Header
     Stroke = Color3.fromRGB(50, 50, 50),
     TextPrimary = Color3.fromRGB(240, 240, 240),
     TextMuted = Color3.fromRGB(160, 160, 160),
@@ -39,7 +41,6 @@ end
 -- [ C O R E   E N G I N E ]
 function NeonFlow:CreateWindow(options)
     local title = options.Title or "NeonFlow UI"
-    local subtitle = options.SubTitle or "by user"
     local size = options.Size or UDim2.fromOffset(580, 460)
 
     local ScreenGui = Create("ScreenGui", { Name = "NeonFlow_Engine", ResetOnSpawn = false, ZIndexBehavior = Enum.ZIndexBehavior.Sibling })
@@ -52,7 +53,9 @@ function NeonFlow:CreateWindow(options)
         Name = "MainGlowCard",
         Size = size + UDim2.fromOffset(6, 6), -- Slight offset for "before" look
         Position = UDim2.new(0.5, -size.X.Offset/2 - 3, 0.5, -size.Y.Offset/2 - 3),
-        BackgroundColor3 = Theme.MainBG,
+        -- GANTI INI: MainGlowCard container background should be transparent to shine maximal
+        -- BackgroundColor3 = Theme.MainBG, 
+        BackgroundTransparency = 1,
         ClipsDescendants = false,
         Parent = ScreenGui
     })
@@ -67,16 +70,23 @@ function NeonFlow:CreateWindow(options)
     local MainWindow = Create("Frame", {
         Name = "MainWindow",
         Size = size,
-        Position = UDim2.fromOffset(3, 3), -- Re-center within GlowCard
+        Position = UDim2.fromOffset(3, 3), -- Center window content within GlowCard container
         BackgroundColor3 = Theme.MainBG,
         Parent = MainGlowCard
     })
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = MainWindow})
     Create("UIStroke", {Color = Theme.Stroke, Thickness = 1.5, Parent = MainWindow}) -- Inner subtle border
 
-    -- [ D R A G G I N G   L O G I C ]
+    -- [ B R O W S E R - S T Y L E   T A B   H E A D E R ]
+    local TabHeaderHead = Create("Frame", { Name = "TabsHead", Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 0), BackgroundColor3 = Theme.TabHeaderBG, Parent = MainWindow })
+    Create("UICorner", {CornerRadius = UDim.new(0, 7), Parent = TabHeaderHead})
+    
+    -- Bottom masks for TabHeader to connect flat to content area
+    Create("Frame", {Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0,0,1,-10), BackgroundColor3 = Theme.TabHeaderBG, BorderSizePixel = 0, ZIndex = 0, Parent = TabHeaderHead})
+
+    -- Draggable Logic Setup (FIXED: Moved here to header area)
     local dragToggle, dragStart, startPosGlow
-    MainWindow.InputBegan:Connect(function(input) 
+    TabHeaderHead.InputBegan:Connect(function(input) 
         if input.UserInputType == Enum.UserInputType.MouseButton1 then 
             dragToggle = true; dragStart = input.Position; startPosGlow = MainGlowCard.Position 
         end 
@@ -90,13 +100,6 @@ function NeonFlow:CreateWindow(options)
     UserInputService.InputEnded:Connect(function(input) 
         if input.UserInputType == Enum.UserInputType.MouseButton1 then dragToggle = false end 
     end)
-
-    -- [ B R O W S E R - S T Y L E   T A B   H E A D E R ]
-    local TabHeaderHead = Create("Frame", { Name = "TabsHead", Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 0), BackgroundColor3 = Theme.TabHeaderBG, Parent = MainWindow })
-    Create("UICorner", {CornerRadius = UDim.new(0, 7), Parent = TabHeaderHead})
-    
-    -- Bottom masks for TabHeader to make only top corners rounded
-    Create("Frame", {Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0,0,1,-10), BackgroundColor3 = Theme.TabHeaderBG, BorderSizePixel = 0, ZIndex = 0, Parent = TabHeaderHead})
 
     local TabTabBar = Create("Frame", { Name = "TabBarContainer", Size = UDim2.new(1, -90, 1, 0), Position = UDim2.fromOffset(20, 0), BackgroundTransparency = 1, Parent = TabHeaderHead })
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Left, VerticalAlignment = Enum.VerticalAlignment.Bottom, Padding = UDim.new(0, 0), Parent = TabTabBar})
@@ -156,7 +159,6 @@ function NeonFlow:CreateWindow(options)
             ScrollBarImageColor3 = Theme.Stroke, 
             AutomaticCanvasSize = Enum.AutomaticSize.Y, 
             Visible = isDefault, 
-            ClipsDescendants = false,
             Parent = TabContainer 
         })
         Create("UIListLayout", {Padding = UDim.new(0, 12), SortOrder = Enum.SortOrder.LayoutOrder, Parent = frame})
@@ -179,14 +181,14 @@ function NeonFlow:CreateWindow(options)
         -- These already styled modern elements are available within each tab object
         local Elements = {}
         
-        -- Add unstyled heading text (e.g., for section names)
-        function Elements:AddLabel(text, styled)
+        -- Add pre-styled label
+        function Elements:AddLabel(text, styledHeading)
             Create("TextLabel", { 
                 Text = text, 
-                Font = styled and Enum.Font.GothamBold or Enum.Font.Gotham, 
-                TextSize = styled and 20 or 14, 
-                TextColor3 = styled and Theme.TextPrimary or Theme.TextMuted,
-                Size = UDim2.new(1, 0, 0, styled and 30 or 20),
+                Font = styledHeading and Enum.Font.GothamBold or Enum.Font.Gotham, 
+                TextSize = styledHeading and 20 or 14, 
+                TextColor3 = styledHeading and Theme.TextPrimary or Theme.TextMuted,
+                Size = UDim2.new(1, 0, 0, styledHeading and 30 or 20),
                 BackgroundTransparency = 1, 
                 TextXAlignment = Enum.TextXAlignment.Left, 
                 Parent = frame 
@@ -198,13 +200,12 @@ function NeonFlow:CreateWindow(options)
             local default = options.Default or false
             local callback = options.Callback or function() end
 
-            -- Modern Toggle Component styled like user requirement
+            -- Modern Toggle Component styled sleek
             local row = Create("Frame", {Name = "Toggle_" .. title, Size = UDim2.new(1, 0, 0, 24), BackgroundTransparency = 1, Parent = frame})
             
-            -- Simulate the checkbox part
             local box = Create("Frame", {Size = UDim2.fromOffset(16, 16), Position = UDim2.new(0, 0, 0.5, -8), BackgroundColor3 = Theme.ItemBG, Parent = row})
             Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = box})
-            local stroke = Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Parent = box})
+            Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Parent = box})
             
             local fill = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.AccentSingle, Transparency = default and 0 or 1, Parent = box})
             Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = fill})
@@ -229,16 +230,16 @@ function NeonFlow:CreateWindow(options)
 
             local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1, Parent = frame})
             
-            -- Main Button Background with Accent Single (like user req last p:last-child)
-            local btn = Create("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.CardBG, Text = text, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Theme.White, Parent = row})
+            -- Main Button Background with custom hover glow (improvisation)
+            local btn = Create("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.CardBG, Text = text, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Theme.AccentSingle, Parent = row})
             Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn})
             
-            -- Adding hover glow effect purely with code improvisation
+            -- Adding hover glow effect using UIStroke and Gradient
             local glowStroke = Create("UIStroke", {Thickness = 2, Color = Theme.Stroke, Transparency = 0.5, Parent = btn})
             local hoverGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.AccentGlow), Visible = false, Parent = glowStroke})
 
-            btn.MouseEnter:Connect(function() glowStroke.Color = Color3.new(1,1,1); hoverGradient.Visible = true; glowStroke.Thickness = 3 end)
-            btn.MouseLeave:Connect(function() glowStroke.Color = Theme.Stroke; hoverGradient.Visible = false; glowStroke.Thickness = 2 end)
+            btn.MouseEnter:Connect(function() glowStroke.Color = Color3.new(1,1,1); hoverGradient.Visible = true; glowStroke.Thickness = 3; btn.TextColor3 = Theme.White end)
+            btn.MouseLeave:Connect(function() glowStroke.Color = Theme.Stroke; hoverGradient.Visible = false; glowStroke.Thickness = 2; btn.TextColor3 = Theme.AccentSingle end)
 
             btn.MouseButton1Click:Connect(callback)
         end
@@ -252,13 +253,13 @@ function NeonFlow:CreateWindow(options)
             local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = frame})
             Create("TextLabel", {Text = title, Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = Theme.TextMuted, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row})
             
-            local btn = Create("TextButton", {Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 16), BackgroundColor3 = Theme.ItemBG, Text = values[default] or "Select...", Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Padding = UDim.new(0, 8), Parent = row})
+            local btn = Create("TextButton", {Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 16), BackgroundColor3 = Theme.ItemBG, Text = values[default] or "Select...", Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Parent = row})
             Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = btn})
             Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Parent = btn})
             Create("TextLabel", {Text = "▼", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.TextMuted, Size = UDim2.fromOffset(20, 20), Position = UDim2.new(1, -20, 0.5, -10), BackgroundTransparency = 1, Parent = btn})
 
-            -- Dropdown functionality needs a separate file or complex modular handling for zindex, simplified here for the stand-alone structure. Improvised.
-            btn.MouseButton1Click:Connect(function() print("Dropdown not fully implemented in this stand-alone code snippet but UI is ready.") end)
+            -- Simplified stand-alone dropdown UI. Full modular logic needed for zindex handling in standalone file. Improvised.
+            btn.MouseButton1Click:Connect(function() print("Dropdown functionality not fully implemented in standalone code snippet but UI is ready.") end)
         end
 
         return Elements
