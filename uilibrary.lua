@@ -1,5 +1,6 @@
 -- ============================================================
--- NEONFLOW LIBRARY - FINAL VERSION
+-- NEONFLOW LIBRARY - FINAL STABLE ENGINE
+-- FIXED: SINGLE OBJECT UI (Anti-glitch), Draggable fixed, Glow Fixed
 -- ============================================================
 local NeonFlow = {}
 local CoreGui = game:GetService("CoreGui")
@@ -19,27 +20,26 @@ function NeonFlow:CreateWindow(options)
     local ScreenGui = Create("ScreenGui", { Name = "NeonFlow_Engine", ResetOnSpawn = false })
     ScreenGui.Parent = gethui and gethui() or CoreGui
 
-    local MainGlow = Create("Frame", { Name = "MainGlow", Size = size + UDim2.fromOffset(6, 6), Position = UDim2.new(0.5, -size.X.Offset/2 - 3, 0.5, -size.Y.Offset/2 - 3), BackgroundTransparency = 1, Parent = ScreenGui })
-    local Stroke = Create("UIStroke", {Thickness = 3, Parent = MainGlow})
-    local Grad = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Parent = Stroke})
+    -- [ THE ONE AND ONLY MAIN WINDOW ]
+    -- Glow nempel di sini, Draggable di sini. Tidak ada tumpukan frame!
+    local MainWindow = Create("Frame", { Name = "MainWindow", Size = size, Position = UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2), BackgroundColor3 = Theme.MainBG, Parent = ScreenGui })
+    Create("UICorner", {CornerRadius = UDim0.new(0, 8), Parent = MainWindow})
+    local GlowStroke = Create("UIStroke", {Thickness = 3, Color = Color3.new(1,1,1), Parent = MainWindow})
+    local Grad = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = GlowStroke})
     TweenService:Create(Grad, TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {Rotation = 360}):Play()
 
-    local MainWindow = Create("Frame", { Name = "MainWindow", Size = size, Position = UDim2.fromOffset(3, 3), BackgroundColor3 = Theme.MainBG, Parent = MainGlow })
-    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = MainWindow})
-    Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Parent = MainWindow})
-
-    -- [ DRAGGABLE: Forced to MainWindow (Entire Window) ]
+    -- [ DRAGGING ]
     local dragToggle, dragStart, startPos
-    MainWindow.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragToggle = true; dragStart = input.Position; startPos = MainGlow.Position end end)
-    UserInputService.InputChanged:Connect(function(input) if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then local delta = input.Position - dragStart; MainGlow.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) end end)
+    MainWindow.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragToggle = true; dragStart = input.Position; startPos = MainWindow.Position end end)
+    UserInputService.InputChanged:Connect(function(input) if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then local delta = input.Position - dragStart; MainWindow.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) end end)
     UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragToggle = false end end)
 
     -- [ TOP BAR ]
     local TopBar = Create("Frame", { Name = "TopBar", Size = UDim2.new(1, 0, 0, 35), BackgroundTransparency = 1, Parent = MainWindow })
     Create("TextLabel", { Text = options.Title, Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Color3.new(1,1,1), Size = UDim2.new(1, -70, 1, 0), Position = UDim2.fromOffset(15, 0), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = TopBar })
     
-    local CloseBtn = Create("TextButton", { Text = "X", Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Color3.new(1,1,1), Size = UDim2.fromOffset(30, 35), Position = UDim2.new(1, -30, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
-    local MinBtn = Create("TextButton", { Text = "—", Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Color3.new(1,1,1), Size = UDim2.fromOffset(30, 35), Position = UDim2.new(1, -60, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
+    local CloseBtn = Create("TextButton", { Text = "X", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.new(1,1,1), Size = UDim2.fromOffset(30, 35), Position = UDim2.new(1, -30, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
+    local MinBtn = Create("TextButton", { Text = "—", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.new(1,1,1), Size = UDim2.fromOffset(30, 35), Position = UDim2.new(1, -60, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
     CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
     -- [ FLOATING BUBBLE ]
@@ -50,18 +50,18 @@ function NeonFlow:CreateWindow(options)
     TweenService:Create(BGrad, TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {Rotation = 360}):Play()
     
     MinBtn.MouseButton1Click:Connect(function() MainWindow.Visible = false; Bubble.Visible = true end)
-    local lastClick = 0
     Bubble.MouseButton1Click:Connect(function() if tick() - lastClick < 0.4 then Bubble.Visible = false; MainWindow.Visible = true end; lastClick = tick() end)
 
-    local TabContainer = Create("Frame", { Name = "TabContainer", Size = UDim2.new(1, -20, 1, -80), Position = UDim2.fromOffset(10, 70), BackgroundTransparency = 1, ClipsDescendants = true, Parent = MainWindow })
+    -- [ TABS ]
     local TabBar = Create("Frame", { Name = "TabBar", Size = UDim2.new(1, -20, 0, 30), Position = UDim2.fromOffset(10, 40), BackgroundTransparency = 1, Parent = MainWindow })
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), Parent = TabBar})
+    local TabContainer = Create("Frame", { Name = "TabContainer", Size = UDim2.new(1, -20, 1, -80), Position = UDim2.fromOffset(10, 80), BackgroundTransparency = 1, ClipsDescendants = true, Parent = MainWindow })
 
     local WindowObj = { Tabs = {}, Container = TabContainer }
     function WindowObj:AddTab(opt)
         local btn = Create("TextButton", { Size = UDim2.fromOffset(0, 24), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = (#self.Tabs == 0 and Theme.AccentSingle or Theme.ItemBG), Text = "  "..opt.Title.."  ", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.new(1,1,1), Parent = TabBar })
         Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn})
-        local frame = Create("ScrollingFrame", { Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, ScrollBarThickness = 0, Visible = (#self.Tabs == 0), Parent = TabContainer })
+        local frame = Create("ScrollingFrame", { Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, ScrollBarThickness = 0, AutomaticCanvasSize = Enum.AutomaticSize.Y, Visible = (#self.Tabs == 0), Parent = TabContainer })
         Create("UIListLayout", {Padding = UDim.new(0, 10), Parent = frame})
         table.insert(self.Tabs, {btn = btn, frame = frame})
         btn.MouseButton1Click:Connect(function() for _, t in ipairs(self.Tabs) do t.frame.Visible = (t.btn == btn); t.btn.BackgroundColor3 = (t.btn == btn and Theme.AccentSingle or Theme.ItemBG) end end)
