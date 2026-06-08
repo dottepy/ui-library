@@ -44,39 +44,25 @@ function NeonFlow:CreateWindow(options)
     if syn and syn.protect_gui then syn.protect_gui(ScreenGui) end
     ScreenGui.Parent = gethui and gethui() or CoreGui
 
-    -- [ G L O W   C O N T A I N E R ]
-    local MainGlowCard = Create("Frame", {
-        Name = "MainGlowCard",
-        Size = size + UDim2.fromOffset(6, 6),
-        Position = UDim2.new(0.5, -size.X.Offset/2 - 1, 0.5, -size.Y.Offset/2 - 1),
-        BackgroundTransparency = 1,
-        ClipsDescendants = false,
+    -- [ M A I N   W I N D O W ]
+    local MainWindow = Create("Frame", {
+        Name = "MainWindow",
+        Size = size,
+        Position = UDim2.new(0.5, -size.X.Offset/2, 0.5, -size.Y.Offset/2),
+        BackgroundColor3 = Theme.MainBG,
+        Active = true,
         Parent = ScreenGui
     })
-    Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = MainGlowCard})
-    
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = MainWindow})
+
+    local GlowStroke = Create("UIStroke", {
+        Color = Color3.new(1,1,1), 
+        Thickness = 2, 
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Parent = MainWindow 
+    })
     local GlowGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = GlowStroke})
     AnimateGlow(GlowGradient)
-
-   -- [ M A I N   W I N D O W ]
-local MainWindow = Create("Frame", {
-    Name = "MainWindow",
-    Size = size,
-    Position = UDim2.fromOffset(3,3),
-    BackgroundColor3 = Theme.MainBG,
-    Active = true,
-    Parent = MainGlowCard
-})
-Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = MainWindow})
-
-local GlowStroke = Create("UIStroke", {
-    Color = Color3.new(1,1,1), 
-    Thickness = 2, 
-    ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-    Parent = MainWindow 
-})
-local GlowGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = GlowStroke})
-AnimateGlow(GlowGradient)
 
     -- [ T O P   B A R ]
     local TopBar = Create("Frame", { Name = "TopBar", Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = Theme.TopBarBG, Parent = MainWindow })
@@ -84,17 +70,17 @@ AnimateGlow(GlowGradient)
     Create("Frame", {Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0,0,1,-10), BackgroundColor3 = Theme.TopBarBG, BorderSizePixel = 0, Parent = TopBar})
     Create("Frame", {Size = UDim2.new(1, 0, 0, 1), Position = UDim2.new(0,0,1,0), BackgroundColor3 = Theme.Stroke, BorderSizePixel = 0, Parent = TopBar}) 
 
-    -- [ D R A G G I N G   L O G I C ] (Fixed: Assigned to TopBar & moves MainGlowCard)
+    -- [ D R A G G I N G   L O G I C ]
     local dragToggle, dragStart, startPos
-    TopBar.InputBegan:Connect(function(input) 
+    MainWindow.InputBegan:Connect(function(input) 
         if input.UserInputType == Enum.UserInputType.MouseButton1 then 
-            dragToggle = true; dragStart = input.Position; startPos = MainGlowCard.Position 
+            dragToggle = true; dragStart = input.Position; startPos = MainWindow.Position 
         end 
     end)
     UserInputService.InputChanged:Connect(function(input) 
         if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then 
             local delta = input.Position - dragStart
-            MainGlowCard.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) 
+            MainWindow.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) 
         end 
     end)
     UserInputService.InputEnded:Connect(function(input) 
@@ -106,8 +92,8 @@ AnimateGlow(GlowGradient)
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 6), Parent = TitleContainer})
     Create("TextLabel", { Text = title, Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Theme.TextPrimary, Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Parent = TitleContainer })
 
-    -- Controls Section (Sleek & Neat)
-    local WindowOpts = Create("Frame", { Name = "WindowOpt", Size = UDim2.fromOffset(60, 30), Position = UDim2.new(1, -60, 0, -10), BackgroundTransparency = 1, Parent = TopBar })
+    -- Controls Section
+    local WindowOpts = Create("Frame", { Name = "WindowOpt", Size = UDim2.fromOffset(60, 30), Position = UDim2.new(1, -65, 0.5, -15), BackgroundTransparency = 1, Parent = TopBar })
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 10), Parent = WindowOpts})
     Create("UIPadding", {PaddingRight = UDim.new(0, 12), Parent = WindowOpts})
 
@@ -122,7 +108,7 @@ AnimateGlow(GlowGradient)
         Size = UDim2.fromOffset(46, 46),
         Position = UDim2.new(1, -60, 0.5, -23),
         BackgroundColor3 = Theme.MainBG,
-        Text = "KNTL", -- Iconnya
+        Text = "KNTL", 
         Font = Enum.Font.GothamBold,
         TextSize = 20,
         Visible = false,
@@ -154,16 +140,16 @@ AnimateGlow(GlowGradient)
     local lastClick = 0
     MinimizeBubble.MouseButton1Click:Connect(function()
         local currentTick = tick()
-        if currentTick - lastClick < 0.4 then -- Deteksi double click
+        if currentTick - lastClick < 0.4 then 
             MinimizeBubble.Visible = false
-            MainGlowCard.Visible = true
+            MainWindow.Visible = true
         end
         lastClick = currentTick
     end)
 
     -- Handle Minimize Button Click
     MinBtn.MouseButton1Click:Connect(function()
-        MainGlowCard.Visible = false
+        MainWindow.Visible = false
         MinimizeBubble.Visible = true
     end)
 
@@ -191,7 +177,7 @@ AnimateGlow(GlowGradient)
             Size = UDim2.fromOffset(0, 26), 
             AutomaticSize = Enum.AutomaticSize.X, 
             BackgroundColor3 = isDefault and Theme.AccentSingle or Theme.ItemBG, 
-            Text = "  " .. tabName .. "  ", 
+            Text = "   " .. tabName .. "   ", 
             Font = Enum.Font.GothamBold, 
             TextSize = 12, 
             TextColor3 = Theme.TextPrimary, 
@@ -200,7 +186,6 @@ AnimateGlow(GlowGradient)
         Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = navBtn})
         local btnStroke = Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Transparency = isDefault and 1 or 0, Parent = navBtn})
 
-        -- FIXED: ScrollBarThickness 0 = hidden, CanvasSize 0,0,0,0 fixes infinite scroll bug
         local frame = Create("ScrollingFrame", { 
             Name = "TabFrame_" .. tabName, 
             Size = UDim2.new(1, 0, 1, 0), 
