@@ -101,7 +101,7 @@ function NeonFlow:CreateWindow(options)
     -- Controls Section (Sleek & Neat)
     local WindowOpts = Create("Frame", { Name = "WindowOpt", Size = UDim2.fromOffset(80, 1), Position = UDim2.new(1, -75, 0, 10), BackgroundTransparency = 1, Parent = TopBar })
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 8), Parent = WindowOpts})
-    Create("UIPadding", {PaddingRight = UDim.new(0, 15), Parent = WindowOpts})
+    Create("UIPadding", {PaddingRight = UDim.new(0, 25), Parent = WindowOpts})
 
     local MinBtn = Create("TextButton", { Text = "—", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1, Parent = WindowOpts })
     local CloseBtn = Create("TextButton", { Text = "X", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1, Parent = WindowOpts })
