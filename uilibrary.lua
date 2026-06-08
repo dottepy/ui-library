@@ -1,6 +1,6 @@
 -- ============================================================
 -- NEONFLOW LIBRARY - ULTRA HIGH-END MODULAR ENGINE
--- Fixed: Attached Glow, Floating Bubble, Hidden Scrollbar, Clean TopBar
+-- Fixed: Attached Glow, Floating Bubble, Hidden Scrollbar, Clean TopBar, No Clipping
 -- ============================================================
 local NeonFlow = {}
 
@@ -119,7 +119,6 @@ function NeonFlow:CreateWindow(options)
     local BubbleGrad = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = BubbleStroke})
     AnimateGlow(BubbleGrad)
 
-    -- Bubble Dragging Logic
     local bDragToggle, bDragStart, bStartPos
     MinimizeBubble.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -136,7 +135,6 @@ function NeonFlow:CreateWindow(options)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then bDragToggle = false end
     end)
 
-    -- Double Click Logic
     local lastClick = 0
     MinimizeBubble.MouseButton1Click:Connect(function()
         local currentTick = tick()
@@ -147,7 +145,6 @@ function NeonFlow:CreateWindow(options)
         lastClick = currentTick
     end)
 
-    -- Handle Minimize Button Click
     MinBtn.MouseButton1Click:Connect(function()
         MainWindow.Visible = false
         MinimizeBubble.Visible = true
@@ -161,10 +158,7 @@ function NeonFlow:CreateWindow(options)
     Create("Frame", { Name = "Separator", Size = UDim2.new(1, -20, 0, 1), Position = UDim2.new(0, 10, 0, 80), BackgroundColor3 = Theme.Stroke, BorderSizePixel = 0, Parent = MainWindow })
 
     -- [ T A B   C O N T A I N E R ]
-    local TabContainer = Create("Frame", { Name = "TabContainer", Size = UDim2.new(1, -20, 1, -115), Position = UDim2.fromOffset(10, 85), BackgroundTransparency = 1, ClipsDescendants = true, Parent = MainWindow })
-
-    -- [ F O O T E R ]
-    local Footer = Create("TextLabel", { Text = "created by tepy", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme.TextMuted, Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 0, 1, -20), BackgroundTransparency = 1, TextTransparency = 0.5, Parent = MainWindow })
+    local TabContainer = Create("Frame", { Name = "TabContainer", Size = UDim2.new(1, -20, 1, -125), Position = UDim2.fromOffset(10, 95), BackgroundTransparency = 1, ClipsDescendants = true, Parent = MainWindow })
 
     local WindowObj = { Tabs = {}, ActiveTab = nil, Container = TabContainer, GUI = ScreenGui }
 
@@ -178,7 +172,7 @@ function NeonFlow:CreateWindow(options)
             AutomaticSize = Enum.AutomaticSize.X, 
             BackgroundColor3 = isDefault and Theme.AccentSingle or Theme.ItemBG, 
             Text = "   " .. tabName .. "   ", 
-            Font = Enum.Font.GothamBold, 
+            Font = Enum.Font.GothamMedium, 
             TextSize = 12, 
             TextColor3 = Theme.TextPrimary, 
             Parent = TabBar 
@@ -199,7 +193,7 @@ function NeonFlow:CreateWindow(options)
         })
         Create("UIListLayout", {Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = frame})
         Create("UIPadding", {PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4), PaddingTop = UDim.new(0, 2), Parent = frame})
-        
+
         local tabObj = { btn = navBtn, frame = frame, idx = #self.Tabs, stroke = btnStroke }
         table.insert(self.Tabs, tabObj)
 
@@ -217,11 +211,11 @@ function NeonFlow:CreateWindow(options)
         
         function Elements:AddLabel(text, styledHeading) Create("TextLabel", { Text = text, Font = styledHeading and Enum.Font.GothamBold or Enum.Font.Gotham, TextSize = styledHeading and 15 or 12, TextColor3 = styledHeading and Theme.TextPrimary or Theme.TextMuted, Size = UDim2.new(1, 0, 0, styledHeading and 22 or 18), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, Parent = frame }) end
         
-        function Elements:AddToggle(options) local title = options.Title or "Toggle"; local default = options.Default or false; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 24), BackgroundTransparency = 1, Parent = frame}); local box = Create("Frame", {Size = UDim2.fromOffset(16, 16), Position = UDim2.new(0, 0, 0.5, -8), BackgroundColor3 = Theme.CardBG, Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = box}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Parent = box}); local fill = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.AccentSingle, Transparency = default and 0 or 1, Parent = box}); Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = fill}); local check = Create("TextLabel", {Text = "✓", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme.White, Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, TextTransparency = default and 0 or 1, Parent = fill}); Create("TextLabel", {Text = title, Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = Theme.TextPrimary, Size = UDim2.new(1, -26, 1, 0), Position = UDim2.fromOffset(26, 0), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row}); local btn = Create("TextButton", {Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, Text = "", Parent = row}); local state = default; btn.MouseButton1Click:Connect(function() state = not state; TweenService:Create(fill, TweenInfo.new(0.15), {Transparency = state and 0 or 1}):Play(); TweenService:Create(check, TweenInfo.new(0.15), {TextTransparency = state and 0 or 1}):Play(); callback(state) end); return { Set = function(newState) state = newState; fill.Transparency = state and 0 or 1; check.TextTransparency = state and 0 or 1; callback(state) end } end
+        function Elements:AddToggle(options) local title = options.Title or "Toggle"; local default = options.Default or false; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 24), BackgroundTransparency = 1, Parent = frame}); local box = Create("Frame", {Size = UDim2.fromOffset(16, 16), Position = UDim2.new(0, 0, 0.5, -8), BackgroundColor3 = Theme.CardBG, Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = box}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = box}); local fill = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.AccentSingle, Transparency = default and 0 or 1, Parent = box}); Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = fill}); local check = Create("TextLabel", {Text = "✓", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme.White, Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, TextTransparency = default and 0 or 1, Parent = fill}); Create("TextLabel", {Text = title, Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = Theme.TextPrimary, Size = UDim2.new(1, -26, 1, 0), Position = UDim2.fromOffset(26, 0), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row}); local btn = Create("TextButton", {Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, Text = "", Parent = row}); local state = default; btn.MouseButton1Click:Connect(function() state = not state; TweenService:Create(fill, TweenInfo.new(0.15), {Transparency = state and 0 or 1}):Play(); TweenService:Create(check, TweenInfo.new(0.15), {TextTransparency = state and 0 or 1}):Play(); callback(state) end); return { Set = function(newState) state = newState; fill.Transparency = state and 0 or 1; check.TextTransparency = state and 0 or 1; callback(state) end } end
         
-        function Elements:AddButton(options) local text = options.Title or "Button"; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1, Parent = frame}); local btn = Create("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.CardBG, Text = text, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.AccentSingle, Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn}); local glowStroke = Create("UIStroke", {Thickness = 1, Color = Theme.Stroke, Parent = btn}); local hoverGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Visible = false, Parent = glowStroke}); btn.MouseEnter:Connect(function() glowStroke.Color = Color3.new(1,1,1); hoverGradient.Visible = true; glowStroke.Thickness = 2; btn.TextColor3 = Theme.White end); btn.MouseLeave:Connect(function() glowStroke.Color = Theme.Stroke; hoverGradient.Visible = false; glowStroke.Thickness = 1; btn.TextColor3 = Theme.AccentSingle end); btn.MouseButton1Click:Connect(callback) end
+        function Elements:AddButton(options) local text = options.Title or "Button"; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1, Parent = frame}); local btn = Create("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.CardBG, Text = text, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.AccentSingle, Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn}); local glowStroke = Create("UIStroke", {Thickness = 1, Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btn}); local hoverGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Visible = false, Parent = glowStroke}); btn.MouseEnter:Connect(function() glowStroke.Color = Color3.new(1,1,1); hoverGradient.Visible = true; glowStroke.Thickness = 2; btn.TextColor3 = Theme.White end); btn.MouseLeave:Connect(function() glowStroke.Color = Theme.Stroke; hoverGradient.Visible = false; glowStroke.Thickness = 1; btn.TextColor3 = Theme.AccentSingle end); btn.MouseButton1Click:Connect(callback) end
         
-        function Elements:AddDropdown(options) local title = options.Title or "Dropdown"; local values = options.Values or {}; local default = options.Default or 1; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = frame}); Create("TextLabel", {Text = title, Font = Enum.Font.Gotham, TextSize = 11, TextColor3 = Theme.TextMuted, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row}); local btn = Create("TextButton", {Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 16), BackgroundColor3 = Theme.CardBG, Text = values[default] or "Select...", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Padding = UDim.new(0, 8), Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = btn}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Parent = btn}); Create("TextLabel", {Text = "▼", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme.TextMuted, Size = UDim2.fromOffset(20, 20), Position = UDim2.new(1, -20, 0.5, -10), BackgroundTransparency = 1, Parent = btn}); btn.MouseButton1Click:Connect(function() print("Dropdown clicked") end) end
+        function Elements:AddDropdown(options) local title = options.Title or "Dropdown"; local values = options.Values or {}; local default = options.Default or 1; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = frame}); Create("TextLabel", {Text = title, Font = Enum.Font.Gotham, TextSize = 11, TextColor3 = Theme.TextMuted, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row}); local btn = Create("TextButton", {Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 16), BackgroundColor3 = Theme.CardBG, Text = values[default] or "Select...", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Padding = UDim.new(0, 8), Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = btn}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btn}); Create("TextLabel", {Text = "▼", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme.TextMuted, Size = UDim2.fromOffset(20, 20), Position = UDim2.new(1, -20, 0.5, -10), BackgroundTransparency = 1, Parent = btn}); btn.MouseButton1Click:Connect(function() print("Dropdown clicked") end) end
         
         return Elements
     end
