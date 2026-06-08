@@ -1,6 +1,6 @@
 -- ============================================================
 -- NEONFLOW LIBRARY - ULTRA HIGH-END MODULAR ENGINE
--- Fixed: Scrolling Overflow, Readable Tabs, Separator, No Subtitle
+-- Fixed: Attached Glow, Floating Bubble, Hidden Scrollbar, Clean TopBar
 -- ============================================================
 local NeonFlow = {}
 
@@ -22,7 +22,7 @@ local Theme = {
         ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 0, 255)), 
         ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 0, 180))
     },
-    AccentSingle = Color3.fromRGB(150, 20, 220) -- Ungu elegan untuk background tab aktif
+    AccentSingle = Color3.fromRGB(150, 20, 220)
 }
 
 local function Create(cls, props) 
@@ -44,6 +44,7 @@ function NeonFlow:CreateWindow(options)
     if syn and syn.protect_gui then syn.protect_gui(ScreenGui) end
     ScreenGui.Parent = gethui and gethui() or CoreGui
 
+    -- [ G L O W   C O N T A I N E R ]
     local MainGlowCard = Create("Frame", {
         Name = "MainGlowCard",
         Size = size + UDim2.fromOffset(6, 6),
@@ -58,6 +59,7 @@ function NeonFlow:CreateWindow(options)
     local GlowGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = GlowStroke})
     AnimateGlow(GlowGradient)
 
+    -- [ M A I N   W I N D O W ]
     local MainWindow = Create("Frame", {
         Name = "MainWindow",
         Size = size,
@@ -68,59 +70,103 @@ function NeonFlow:CreateWindow(options)
     })
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = MainWindow})
 
-    local dragToggle, dragStart, startPos
-    MainWindow.InputBegan:Connect(function(input) 
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then 
-            dragToggle = true; dragStart = input.Position; startPos = MainWindow.Position 
-        end 
-    end)
-    UserInputService.InputChanged:Connect(function(input) 
-        if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then 
-            local delta = input.Position - dragStart
-            MainWindow.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) 
-        end 
-    end)
-    UserInputService.InputEnded:Connect(function(input) 
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragToggle = false end 
-    end)
-
     -- [ T O P   B A R ]
     local TopBar = Create("Frame", { Name = "TopBar", Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = Theme.TopBarBG, Parent = MainWindow })
     Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = TopBar})
     Create("Frame", {Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0,0,1,-10), BackgroundColor3 = Theme.TopBarBG, BorderSizePixel = 0, Parent = TopBar})
     Create("Frame", {Size = UDim2.new(1, 0, 0, 1), Position = UDim2.new(0,0,1,0), BackgroundColor3 = Theme.Stroke, BorderSizePixel = 0, Parent = TopBar}) 
 
-    -- Title Section (FIXED: Subtitle & "by user" dihapus total)
+    -- [ D R A G G I N G   L O G I C ] (Fixed: Assigned to TopBar & moves MainGlowCard)
+    local dragToggle, dragStart, startPos
+    TopBar.InputBegan:Connect(function(input) 
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then 
+            dragToggle = true; dragStart = input.Position; startPos = MainGlowCard.Position 
+        end 
+    end)
+    UserInputService.InputChanged:Connect(function(input) 
+        if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then 
+            local delta = input.Position - dragStart
+            MainGlowCard.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) 
+        end 
+    end)
+    UserInputService.InputEnded:Connect(function(input) 
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragToggle = false end 
+    end)
+
+    -- Title Section
     local TitleContainer = Create("Frame", { Name = "TitleSection", Size = UDim2.new(0.6, 0, 1, 0), Position = UDim2.fromOffset(15, 0), BackgroundTransparency = 1, Parent = TopBar })
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 6), Parent = TitleContainer})
-    Create("TextLabel", { Text = title, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Theme.TextPrimary, Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Parent = TitleContainer })
+    Create("TextLabel", { Text = title, Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Theme.TextPrimary, Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Parent = TitleContainer })
 
-    -- Controls Section
-    local WindowOpts = Create("Frame", { Name = "WindowOpt", Size = UDim2.fromOffset(70, 1), Position = UDim2.new(1, -75, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
-    Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 5), Parent = WindowOpts})
-    Create("UIPadding", {PaddingRight = UDim.new(0, 10), Parent = WindowOpts})
+    -- Controls Section (Sleek & Neat)
+    local WindowOpts = Create("Frame", { Name = "WindowOpt", Size = UDim2.fromOffset(80, 1), Position = UDim2.new(1, -80, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
+    Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 8), Parent = WindowOpts})
+    Create("UIPadding", {PaddingRight = UDim.new(0, 15), Parent = WindowOpts})
 
-    local MinBtn = Create("TextButton", { Text = "_", Font = Enum.Font.Gotham, TextSize = 16, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(25, 20), BackgroundTransparency = 1, Parent = WindowOpts })
-    local CloseBtn = Create("TextButton", { Text = "x", Font = Enum.Font.Gotham, TextSize = 14, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(25, 20), BackgroundTransparency = 1, Parent = WindowOpts })
+    local MinBtn = Create("TextButton", { Text = "—", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1, Parent = WindowOpts })
+    local CloseBtn = Create("TextButton", { Text = "X", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1, Parent = WindowOpts })
     
     CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
     
-    local isMinimized = false
+    -- [ F L O A T I N G   B U B B L E   L O G I C ]
+    local MinimizeBubble = Create("TextButton", {
+        Name = "MinimizeBubble",
+        Size = UDim2.fromOffset(46, 46),
+        Position = UDim2.new(1, -60, 0.5, -23),
+        BackgroundColor3 = Theme.MainBG,
+        Text = "⚔️", -- Iconnya
+        Font = Enum.Font.GothamBold,
+        TextSize = 20,
+        Visible = false,
+        Parent = ScreenGui
+    })
+    Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = MinimizeBubble})
+    local BubbleStroke = Create("UIStroke", {Color = Color3.new(1,1,1), Thickness = 2, Parent = MinimizeBubble})
+    local BubbleGrad = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = BubbleStroke})
+    AnimateGlow(BubbleGrad)
+
+    -- Bubble Dragging Logic
+    local bDragToggle, bDragStart, bStartPos
+    MinimizeBubble.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            bDragToggle = true; bDragStart = input.Position; bStartPos = MinimizeBubble.Position
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if bDragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - bDragStart
+            MinimizeBubble.Position = UDim2.new(bStartPos.X.Scale, bStartPos.X.Offset + delta.X, bStartPos.Y.Scale, bStartPos.Y.Offset + delta.Y)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then bDragToggle = false end
+    end)
+
+    -- Double Click Logic
+    local lastClick = 0
+    MinimizeBubble.MouseButton1Click:Connect(function()
+        local currentTick = tick()
+        if currentTick - lastClick < 0.4 then -- Deteksi double click
+            MinimizeBubble.Visible = false
+            MainGlowCard.Visible = true
+        end
+        lastClick = currentTick
+    end)
+
+    -- Handle Minimize Button Click
     MinBtn.MouseButton1Click:Connect(function()
-        isMinimized = not isMinimized
-        TweenService:Create(MainWindow, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = isMinimized and UDim2.fromOffset(size.X.Offset, 35) or size}):Play()
-        MainWindow.ClipsDescendants = isMinimized
+        MainGlowCard.Visible = false
+        MinimizeBubble.Visible = true
     end)
 
     -- [ T A B   B A R ]
     local TabBar = Create("Frame", { Name = "TabBar", Size = UDim2.new(1, -20, 0, 35), Position = UDim2.fromOffset(10, 40), BackgroundTransparency = 1, Parent = MainWindow })
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 8), Parent = TabBar})
 
-    -- [ G A R I S   P E M I S A H ] (Separator Line Added)
+    -- [ G A R I S   P E M I S A H ]
     Create("Frame", { Name = "Separator", Size = UDim2.new(1, -20, 0, 1), Position = UDim2.new(0, 10, 0, 80), BackgroundColor3 = Theme.Stroke, BorderSizePixel = 0, Parent = MainWindow })
 
     -- [ T A B   C O N T A I N E R ]
-    -- FIXED: Tambah ClipsDescendants = true biar konten nggak bocor pas discroll!
     local TabContainer = Create("Frame", { Name = "TabContainer", Size = UDim2.new(1, -20, 1, -115), Position = UDim2.fromOffset(10, 85), BackgroundTransparency = 1, ClipsDescendants = true, Parent = MainWindow })
 
     -- [ F O O T E R ]
@@ -132,7 +178,6 @@ function NeonFlow:CreateWindow(options)
         local tabName = tabOptions.Title or "Tab"
         local isDefault = #self.Tabs == 0
 
-        -- FIXED: Background Tab nyala kalau aktif, tulisan tetap Putih bersih.
         local navBtn = Create("TextButton", { 
             Name = "NavBtn_" .. tabName, 
             Size = UDim2.fromOffset(0, 26), 
@@ -147,12 +192,13 @@ function NeonFlow:CreateWindow(options)
         Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = navBtn})
         local btnStroke = Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, Transparency = isDefault and 1 or 0, Parent = navBtn})
 
+        -- FIXED: ScrollBarThickness 0 = hidden, CanvasSize 0,0,0,0 fixes infinite scroll bug
         local frame = Create("ScrollingFrame", { 
             Name = "TabFrame_" .. tabName, 
             Size = UDim2.new(1, 0, 1, 0), 
             BackgroundTransparency = 1, 
-            ScrollBarThickness = 2, 
-            ScrollBarImageColor3 = Theme.Stroke, 
+            ScrollBarThickness = 0, 
+            CanvasSize = UDim2.new(0, 0, 0, 0),
             AutomaticCanvasSize = Enum.AutomaticSize.Y, 
             Visible = isDefault, 
             ClipsDescendants = false, 
