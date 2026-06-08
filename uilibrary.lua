@@ -99,11 +99,11 @@ function NeonFlow:CreateWindow(options)
     Create("TextLabel", { Text = title, Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Theme.TextPrimary, Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Parent = TitleContainer })
 
     -- Controls Section (Sleek & Neat)
-    local WindowOpts = Create("Frame", { Name = "WindowOpt", Size = UDim2.fromOffset(80, 1), Position = UDim2.new(1, -80, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
+    local WindowOpts = Create("Frame", { Name = "WindowOpt", Size = UDim2.fromOffset(80, 1), Position = UDim2.new(1, -50, 0, 0), BackgroundTransparency = 1, Parent = TopBar })
     Create("UIListLayout", {FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 8), Parent = WindowOpts})
     Create("UIPadding", {PaddingRight = UDim.new(0, 15), Parent = WindowOpts})
 
-    local MinBtn = Create("TextButton", { Text = "—", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(15, 15), BackgroundTransparency = 1, Parent = WindowOpts })
+    local MinBtn = Create("TextButton", { Text = "—", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1, Parent = WindowOpts })
     local CloseBtn = Create("TextButton", { Text = "X", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(20, 20), BackgroundTransparency = 1, Parent = WindowOpts })
     
     CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
