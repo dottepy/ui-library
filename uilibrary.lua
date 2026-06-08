@@ -320,7 +320,27 @@ function NeonFlow:CreateWindow(options)
         
         return Elements
     end
-
+    -- [ A U T O   I N J E C T   'M I S C'   T A B ]
+    task.spawn(function()
+        local MiscTab = WindowObj:AddTab({Title = "Misc"})
+        MiscTab:AddLabel("Utility & Settings", true)
+        MiscTab:AddToggle({
+            Title = "Window Transparency",
+            Default = false,
+            Callback = function(state)
+                TweenService:Create(MainWindow, TweenInfo.new(0.3), {BackgroundTransparency = state and 0.35 or 0}):Play()
+            end
+        })
+        MiscTab:AddButton({
+            Title = "Join Discord",
+            Callback = function()
+                if setclipboard then
+                    setclipboard("https://discord.gg/yourlink")
+                    print("Discord link copied to clipboard!")
+                end
+            end
+        })
+    end)
     return WindowObj
 end
 
