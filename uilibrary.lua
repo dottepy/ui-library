@@ -48,7 +48,7 @@ function NeonFlow:CreateWindow(options)
     local MainGlowCard = Create("Frame", {
         Name = "MainGlowCard",
         Size = size + UDim2.fromOffset(6, 6),
-        Position = UDim2.new(0.5, -size.X.Offset/2 - 3, 0.5, -size.Y.Offset/2 - 3),
+        Position = UDim2.new(0, 3, 0, 3),
         BackgroundTransparency = 1,
         ClipsDescendants = false,
         Parent = ScreenGui
