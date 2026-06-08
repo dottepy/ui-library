@@ -1,6 +1,6 @@
 -- ============================================================
 -- NEONFLOW LIBRARY - ULTRA HIGH-END MODULAR ENGINE
--- Fixed: Attached Glow, Floating Bubble, Hidden Scrollbar, Clean TopBar, No Clipping
+-- Added: True Dropdown, Number Counter, SearchBox
 -- ============================================================
 local NeonFlow = {}
 
@@ -73,18 +73,18 @@ function NeonFlow:CreateWindow(options)
     -- [ D R A G G I N G   L O G I C ]
     local dragToggle, dragStart, startPos
     MainWindow.InputBegan:Connect(function(input) 
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then 
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
             dragToggle = true; dragStart = input.Position; startPos = MainWindow.Position 
         end 
     end)
     UserInputService.InputChanged:Connect(function(input) 
-        if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then 
+        if dragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then 
             local delta = input.Position - dragStart
             MainWindow.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) 
         end 
     end)
     UserInputService.InputEnded:Connect(function(input) 
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragToggle = false end 
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragToggle = false end 
     end)
 
     -- Title Section
@@ -121,18 +121,18 @@ function NeonFlow:CreateWindow(options)
 
     local bDragToggle, bDragStart, bStartPos
     MinimizeBubble.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             bDragToggle = true; bDragStart = input.Position; bStartPos = MinimizeBubble.Position
         end
     end)
     UserInputService.InputChanged:Connect(function(input)
-        if bDragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
+        if bDragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - bDragStart
             MinimizeBubble.Position = UDim2.new(bStartPos.X.Scale, bStartPos.X.Offset + delta.X, bStartPos.Y.Scale, bStartPos.Y.Offset + delta.Y)
         end
     end)
     UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then bDragToggle = false end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then bDragToggle = false end
     end)
 
     local lastClick = 0
@@ -192,7 +192,7 @@ function NeonFlow:CreateWindow(options)
             Parent = TabContainer 
         })
         Create("UIListLayout", {Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = frame})
-        Create("UIPadding", {PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4), PaddingTop = UDim.new(0, 2), Parent = frame})
+        Create("UIPadding", {PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 10), Parent = frame})
 
         local tabObj = { btn = navBtn, frame = frame, idx = #self.Tabs, stroke = btnStroke }
         table.insert(self.Tabs, tabObj)
@@ -215,32 +215,111 @@ function NeonFlow:CreateWindow(options)
         
         function Elements:AddButton(options) local text = options.Title or "Button"; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1, Parent = frame}); local btn = Create("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.CardBG, Text = text, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.AccentSingle, Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn}); local glowStroke = Create("UIStroke", {Thickness = 1, Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btn}); local hoverGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Visible = false, Parent = glowStroke}); btn.MouseEnter:Connect(function() glowStroke.Color = Color3.new(1,1,1); hoverGradient.Visible = true; glowStroke.Thickness = 2; btn.TextColor3 = Theme.White end); btn.MouseLeave:Connect(function() glowStroke.Color = Theme.Stroke; hoverGradient.Visible = false; glowStroke.Thickness = 1; btn.TextColor3 = Theme.AccentSingle end); btn.MouseButton1Click:Connect(callback) end
         
-        function Elements:AddDropdown(options) local title = options.Title or "Dropdown"; local values = options.Values or {}; local default = options.Default or 1; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = frame}); Create("TextLabel", {Text = title, Font = Enum.Font.Gotham, TextSize = 11, TextColor3 = Theme.TextMuted, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row}); local btn = Create("TextButton", {Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 16), BackgroundColor3 = Theme.CardBG, Text = values[default] or "Select...", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Padding = UDim.new(0, 8), Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = btn}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btn}); Create("TextLabel", {Text = "▼", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme.TextMuted, Size = UDim2.fromOffset(20, 20), Position = UDim2.new(1, -20, 0.5, -10), BackgroundTransparency = 1, Parent = btn}); btn.MouseButton1Click:Connect(function() print("Dropdown clicked") end) end
+        -- [ NEW: SEARCH BOX ]
+        function Elements:AddSearchBox(options)
+            local placeholder = options.Placeholder or "Search..."
+            local callback = options.Callback or function() end
+
+            local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1, Parent = frame})
+            local box = Create("TextBox", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.CardBG, Text = "", PlaceholderText = " " .. placeholder, Font = Enum.Font.Gotham, TextSize = 11, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Parent = row})
+            Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = box})
+            Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = box})
+
+            box:GetPropertyChangedSignal("Text"):Connect(function() callback(box.Text) end)
+            
+            return {
+                Set = function(text) box.Text = text end,
+                Get = function() return box.Text end
+            }
+        end
+
+        -- [ NEW: NUMBER COUNTER ]
+        function Elements:AddNumberCounter(options)
+            local title = options.Title or "Counter"
+            local min = options.Min or 0
+            local max = options.Max or 100
+            local default = options.Default or min
+            local callback = options.Callback or function() end
+
+            local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Parent = frame})
+            Create("TextLabel", {Text = title, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.TextPrimary, Size = UDim2.new(0.5, 0, 1, 0), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row})
+
+            local minBtn = Create("TextButton", {Text = "−", Font = Enum.Font.GothamBold, TextSize do 14, BackgroundColor3 = Theme.CardBG, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -80, 0.5, -13), Parent = row})
+            Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = minBtn}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = minBtn})
+            
+            local valLbl = Create("TextLabel", {Text = tostring(default), Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.AccentSingle, Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -50, 0.5, -13), BackgroundTransparency = 1, Parent = row})
+            
+            local addBtn = Create("TextButton", {Text = "+", Font = Enum.Font.GothamBold, TextSize = 14, BackgroundColor3 = Theme.CardBG, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -20, 0.5, -13), Parent = row})
+            Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = addBtn}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = addBtn})
+
+            local state = default
+            minBtn.MouseButton1Click:Connect(function()
+                if state > min then state -= 1; valLbl.Text = tostring(state); callback(state) end
+            end)
+            addBtn.MouseButton1Click:Connect(function()
+                if state < max then state += 1; valLbl.Text = tostring(state); callback(state) end
+            end)
+
+            return {
+                Set = function(val) state = math.clamp(val, min, max); valLbl.Text = tostring(state); callback(state) end,
+                Get = function() return state end,
+                UpdateVisibility = function(visible) row.Visible = visible end
+            }
+        end
+
+        -- [ OVERHAUL: TRUE DROPDOWN ]
+        function Elements:AddDropdown(options)
+            local title = options.Title or "Dropdown"
+            local values = options.Values or {}
+            local default = options.Default or 1
+            local callback = options.Callback or function() end
+
+            local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = frame})
+            Create("TextLabel", {Text = title, Font = Enum.Font.Gotham, TextSize = 11, TextColor3 = Theme.TextMuted, Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row})
+            
+            local btn = Create("TextButton", {Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 16), BackgroundColor3 = Theme.CardBG, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Padding = UDim.new(0, 8), Parent = row})
+            Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = btn}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btn})
+            Create("TextLabel", {Text = "▼", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme.TextMuted, Size = UDim2.fromOffset(20, 20), Position = UDim2.new(1, -20, 0.5, -10), BackgroundTransparency = 1, Parent = btn})
+
+            local dropHeight = math.min(#values * 24, 150)
+            local dropFrame = Create("ScrollingFrame", {
+                Size = UDim2.fromOffset(0, dropHeight), CanvasSize = UDim2.new(0, 0, 0, #values * 24),
+                BackgroundColor3 = Theme.ItemBG, ScrollBarThickness = 2, ZIndex = 100, Visible = false, Parent = MainWindow 
+            })
+            Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = dropFrame}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = dropFrame})
+            Create("UIListLayout", {Padding = UDim.new(0, 0), Parent = dropFrame})
+
+            local function UpdateVis(idx)
+                local opt = values[idx]
+                btn.Text = opt and (type(opt) == "table" and opt.name or opt) or "Select..."
+            end
+            UpdateVis(default)
+
+            for i, opt in ipairs(values) do
+                local optName = type(opt) == "table" and opt.name or opt
+                local optId = type(opt) == "table" and opt.id or opt
+                local optBtn = Create("TextButton", {Text = "  " .. optName, Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = Theme.TextPrimary, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, 0, 0, 24), BackgroundTransparency = 1, ZIndex = 101, Parent = dropFrame})
+                optBtn.MouseButton1Click:Connect(function()
+                    UpdateVis(i)
+                    dropFrame.Visible = false
+                    callback(optId)
+                end)
+            end
+
+            btn.MouseButton1Click:Connect(function()
+                if dropFrame.Visible then dropFrame.Visible = false return end
+                dropFrame.Size = UDim2.fromOffset(btn.AbsoluteSize.X, dropHeight)
+                dropFrame.Position = UDim2.fromOffset(btn.AbsolutePosition.X - MainWindow.AbsolutePosition.X, (btn.AbsolutePosition.Y - MainWindow.AbsolutePosition.Y) + btn.AbsoluteSize.Y + 2)
+                dropFrame.Visible = true
+            end)
+            
+            return {
+                Set = function(idx) UpdateVis(idx); callback(type(values[idx]) == "table" and values[idx].id or values[idx]) end
+            }
+        end
         
         return Elements
     end
-
-    -- [ A U T O   I N J E C T   'M I S C'   T A B ]
-    task.spawn(function()
-        local MiscTab = WindowObj:AddTab({Title = "Misc"})
-        MiscTab:AddLabel("Utility & Settings", true)
-        MiscTab:AddToggle({
-            Title = "Window Transparency",
-            Default = false,
-            Callback = function(state)
-                TweenService:Create(MainWindow, TweenInfo.new(0.3), {BackgroundTransparency = state and 0.35 or 0}):Play()
-            end
-        })
-        MiscTab:AddButton({
-            Title = "Join Discord",
-            Callback = function()
-                if setclipboard then
-                    setclipboard("https://discord.gg/yourlink")
-                    print("Discord link copied to clipboard!")
-                end
-            end
-        })
-    end)
 
     return WindowObj
 end
