@@ -55,7 +55,7 @@ function NeonFlow:CreateWindow(options)
     })
     Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = MainGlowCard})
     
-    local GlowStroke = Create("UIStroke", {Color = Color3.new(1,1,1), Thickness = 2, Parent = MainGlowCard})
+    local GlowStroke = Create("UIStroke", {Color = Color3.new(1,1,1), Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = MainGlowCard})
     local GlowGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = GlowStroke})
     AnimateGlow(GlowGradient)
 
