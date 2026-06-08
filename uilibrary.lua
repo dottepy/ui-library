@@ -121,7 +121,7 @@ function NeonFlow:CreateWindow(options)
         Parent = ScreenGui
     })
     Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = MinimizeBubble})
-    local BubbleStroke = Create("UIStroke", {Color = Color3.new(1,1,1), Thickness = 2, Parent = MinimizeBubble})
+    local BubbleStroke = Create("UIStroke", {Color = Color3.new(1,1,1), Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = MinimizeBubble})
     local BubbleGrad = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Rotation = 0, Parent = BubbleStroke})
     AnimateGlow(BubbleGrad)
 
