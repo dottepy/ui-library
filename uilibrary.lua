@@ -62,7 +62,7 @@ function NeonFlow:CreateWindow(options)
     -- [ M A I N   W I N D O W ]
     local MainWindow = Create("Frame", {
         Name = "MainWindow",
-        Size = UDim2.ne(1,-6,1,-6),
+        Size = size,
         Position = UDim2.fromOffset(0,3,0,3),
         BackgroundColor3 = Theme.MainBG,
         Active = true,
@@ -114,7 +114,7 @@ function NeonFlow:CreateWindow(options)
         Size = UDim2.fromOffset(46, 46),
         Position = UDim2.new(1, -60, 0.5, -23),
         BackgroundColor3 = Theme.MainBG,
-        Text = "⚔️", -- Iconnya
+        Text = "KNTL", -- Iconnya
         Font = Enum.Font.GothamBold,
         TextSize = 20,
         Visible = false,
