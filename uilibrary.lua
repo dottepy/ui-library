@@ -1,6 +1,6 @@
 -- ============================================================
 -- NEONFLOW LIBRARY - ULTRA HIGH-END MODULAR ENGINE
--- Added: True Dropdown, Number Counter, SearchBox
+-- Features: Attached Glow, Floating Bubble, True Dropdown, SearchBox, Counter
 -- ============================================================
 local NeonFlow = {}
 
@@ -215,7 +215,7 @@ function NeonFlow:CreateWindow(options)
         
         function Elements:AddButton(options) local text = options.Title or "Button"; local callback = options.Callback or function() end; local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1, Parent = frame}); local btn = Create("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Theme.CardBG, Text = text, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.AccentSingle, Parent = row}); Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn}); local glowStroke = Create("UIStroke", {Thickness = 1, Color = Theme.Stroke, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btn}); local hoverGradient = Create("UIGradient", {Color = ColorSequence.new(Theme.GlowGradient), Visible = false, Parent = glowStroke}); btn.MouseEnter:Connect(function() glowStroke.Color = Color3.new(1,1,1); hoverGradient.Visible = true; glowStroke.Thickness = 2; btn.TextColor3 = Theme.White end); btn.MouseLeave:Connect(function() glowStroke.Color = Theme.Stroke; hoverGradient.Visible = false; glowStroke.Thickness = 1; btn.TextColor3 = Theme.AccentSingle end); btn.MouseButton1Click:Connect(callback) end
         
-        -- [ NEW: SEARCH BOX ]
+        -- [ N E W : SEARCH BOX ]
         function Elements:AddSearchBox(options)
             local placeholder = options.Placeholder or "Search..."
             local callback = options.Callback or function() end
@@ -233,7 +233,7 @@ function NeonFlow:CreateWindow(options)
             }
         end
 
-        -- [ NEW: NUMBER COUNTER ]
+        -- [ N E W : NUMBER COUNTER ]
         function Elements:AddNumberCounter(options)
             local title = options.Title or "Counter"
             local min = options.Min or 0
@@ -244,7 +244,7 @@ function NeonFlow:CreateWindow(options)
             local row = Create("Frame", {Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Parent = frame})
             Create("TextLabel", {Text = title, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.TextPrimary, Size = UDim2.new(0.5, 0, 1, 0), BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, Parent = row})
 
-            local minBtn = Create("TextButton", {Text = "−", Font = Enum.Font.GothamBold, TextSize do 14, BackgroundColor3 = Theme.CardBG, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -80, 0.5, -13), Parent = row})
+            local minBtn = Create("TextButton", {Text = "−", Font = Enum.Font.GothamBold, TextSize = 14, BackgroundColor3 = Theme.CardBG, TextColor3 = Theme.TextPrimary, Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -80, 0.5, -13), Parent = row})
             Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = minBtn}); Create("UIStroke", {Color = Theme.Stroke, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = minBtn})
             
             local valLbl = Create("TextLabel", {Text = tostring(default), Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Theme.AccentSingle, Size = UDim2.fromOffset(26, 26), Position = UDim2.new(1, -50, 0.5, -13), BackgroundTransparency = 1, Parent = row})
